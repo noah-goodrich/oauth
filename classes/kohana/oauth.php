@@ -17,65 +17,6 @@ abstract class Kohana_OAuth {
 	public static $version = '1.0';
 
 	/**
-	 * Returns the output of a remote URL. Any [curl option](http://php.net/curl_setopt)
-	 * may be used.
-	 *
-	 *     // Do a simple GET request
-	 *     $data = Remote::get($url);
-	 *
-	 *     // Do a POST request
-	 *     $data = Remote::get($url, array(
-	 *         CURLOPT_POST       => TRUE,
-	 *         CURLOPT_POSTFIELDS => http_build_query($array),
-	 *     ));
-	 *
-	 * @param   string   remote URL
-	 * @param   array    curl options
-	 * @return  string
-	 * @throws  Kohana_Exception
-	 */
-	public static function remote($url, array $options = NULL)
-	{
-		// The transfer must always be returned
-		$options[CURLOPT_RETURNTRANSFER] = TRUE;
-
-		// Open a new remote connection
-		$remote = curl_init($url);
-
-		// Set connection options
-		if ( ! curl_setopt_array($remote, $options))
-		{
-			throw new Kohana_Exception('Failed to set CURL options, check CURL documentation: :url',
-				array(':url' => 'http://php.net/curl_setopt_array'));
-		}
-
-		// Get the response
-		$response = curl_exec($remote);
-
-		// Get the response information
-		$code = curl_getinfo($remote, CURLINFO_HTTP_CODE);
-
-		if ($code AND $code < 200 OR $code > 299)
-		{
-			$error = $response;
-		}
-		elseif ($response === FALSE)
-		{
-			$error = curl_error($remote);
-		}
-
-		// Close the connection
-		curl_close($remote);
-
-		if (isset($error))
-		{
-			throw new Kohana_OAuth_Exception('Error fetching remote :url [ status :code ] :error',
-				array(':url' => $url, ':code' => $code, ':error' => $error));
-		}
-
-		return $response;
-	}
-	/**
 	 * RFC3986 compatible version of urlencode. Passing an array will encode
 	 * all of the values in the array. Array keys will not be encoded.
 	 *

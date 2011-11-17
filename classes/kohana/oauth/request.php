@@ -473,45 +473,28 @@ class Kohana_OAuth_Request {
 		// Check that all required fields are set
 		$this->check();
 
-		// Get the URL of the request
-		$url = $this->url;
-
-		if ( ! isset($options[CURLOPT_CONNECTTIMEOUT]))
-		{
-			// Use the request default timeout
-			$options[CURLOPT_CONNECTTIMEOUT] = $this->timeout;
-		}
+		$request = Request::factory($this->url);
 
 		if ($this->send_header)
 		{
-			// Get the the current headers
-			$headers = Arr::get($options, CURLOPT_HTTPHEADER, array());
-
 			// Add the Authorization header
-			$headers[] = 'Authorization: '.$this->as_header();
-
-			// Store the new headers
-			$options[CURLOPT_HTTPHEADER] = $headers;
+			$request->headers('Authorization', $this->as_header());
 		}
 
-		if ($this->method === 'POST')
+		$request->method($this->method);
+
+		if ($this->method === Request::POST)
 		{
-			// Send the request as a POST
-			$options[CURLOPT_POST] = TRUE;
-
-			if ($post = $this->as_query(NULL, empty($this->upload)))
-			{
-				// Attach the post fields to the request
-				$options[CURLOPT_POSTFIELDS] = $post;
-			}
+			$request->post($this->as_query(NULL, FALSE));
 		}
-		elseif ($query = $this->as_query())
+		else
 		{
-			// Append the parameters to the query string
-			$url = "{$url}?{$query}";
+			$request->query($this->as_query(NULL, FALSE));
 		}
 
-		return OAuth::remote($url, $options);
+		$response = $request->execute();
+
+		return $response->body();
 	}
 
 } // End OAuth_Request
