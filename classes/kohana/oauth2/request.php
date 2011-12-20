@@ -31,59 +31,34 @@ abstract class Kohana_OAuth2_Request extends OAuth_Request {
 	 */
 	public $send_header = TRUE;
 
+	protected $auth_params = '/^access_token$/';
+
 	/**
 	 * Convert the request parameters into an `Authorization` header.
 	 *
 	 *     $header = $request->as_header();
 	 *
-	 * [!!] This method implements [OAuth 2.0 Spec 6.1](http://tools.ietf.org/html/draft-ietf-oauth-v2-07#section-6.1).
+	 * [!!] This method implements [OAuth 2.0 v22 Spec 7.1](http://tools.ietf.org/html/draft-ietf-oauth-v2-22#section-7.1).
 	 *
 	 * @return  string
 	 */
 	public function as_header()
 	{
-		return 'token '.Arr::get($this->params, 'access_token');
-	}
-
-	/**
-	 * Convert the request parameters into a query string, suitable for GET and
-	 * POST requests.
-	 *
-	 *     $query = $request->as_query();
-	 *
-	 * [!!] This method implements [OAuth 1.0 Spec 5.2 (2,3)](http://oauth.net/core/1.0/#rfc.section.5.2).
-	 *
-	 * @param   boolean   include oauth parameters?
-	 * @param   boolean   return a normalized string?
-	 * @return  string
-	 */
-	public function as_query($include_oauth = NULL, $as_string = TRUE)
-	{
-		if ($include_oauth === NULL)
+		if ($access = Arr::get($this->params, 'access_token'))
 		{
-			// If we are sending a header, OAuth parameters should not be
-			// included in the query string.
-			$include_oauth = ! $this->send_header;
-		}
-
-		if ($include_oauth)
-		{
-			$params = $this->params;
-		}
-		else
-		{
-			$params = array();
-			foreach ($this->params as $name => $value)
+			if (is_string($this->send_header))
 			{
-				if (strpos($name, 'oauth_') !== 0 AND $name !== 'access_token')
-				{
-					// This is not an OAuth parameter
-					$params[$name] = $value;
-				}
+				$header = $this->send_header;
 			}
+			else
+			{
+				$header = 'Bearer';
+			}
+
+			$access = $header.' '.$access;
 		}
 
-		return $as_string ? OAuth::normalize_params($params) : $params;
+		return $access ? $access : NULL;
 	}
 
 }
