@@ -14,6 +14,11 @@ class Kohana_Oauth2_Server
 
 	protected function __construct()
 	{
+
+	}
+
+	public function token()
+	{
 		
 	}
 }
