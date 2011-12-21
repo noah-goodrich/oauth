@@ -60,6 +60,11 @@ class Kohana_OAuth_Request {
 	protected $body;
 
 	/**
+	 * @var  string  OAuth parameters matching regex
+	 */
+	protected $auth_params = '/^oauth_/';
+
+	/**
 	 * @var   array   request parameters
 	 */
 	protected $params = array();
@@ -362,7 +367,7 @@ class Kohana_OAuth_Request {
 			}
 		}
 
-		return 'OAuth '.implode(', ', $header);
+		return $header ? 'OAuth '.implode(', ', $header) : NULL;
 	}
 
 	/**
@@ -395,7 +400,7 @@ class Kohana_OAuth_Request {
 			$params = array();
 			foreach ($this->params as $name => $value)
 			{
-				if (strpos($name, 'oauth_') !== 0)
+				if ( ! preg_match($this->auth_params, $name))
 				{
 					// This is not an OAuth parameter
 					$params[$name] = $value;
@@ -500,10 +505,10 @@ class Kohana_OAuth_Request {
 			$options[CURLOPT_CONNECTTIMEOUT] = $this->timeout;
 		}
 
-		if ($this->send_header)
+		if ($this->send_header AND $header = $this->as_header())
 		{
 			// Store the new headers
-			$options[CURLOPT_HTTPHEADER][] = 'Authorization: '.$this->as_header();
+			$options[CURLOPT_HTTPHEADER][] = 'Authorization: '.$header;
 		}
 
 		// Set the request method for this request
@@ -515,11 +520,16 @@ class Kohana_OAuth_Request {
 		}
 		elseif ($this->method === 'POST')
 		{
-			if ($post = $this->as_query(NULL, empty($this->upload)))
+			if ($post = $this->as_query(empty($header), empty($this->upload)))
 			{
 				// Attach the post fields to the request
 				$options[CURLOPT_POSTFIELDS] = $post;
 			}
+		}
+
+		if ($this->body)
+		{
+			$options[CURLOPT_HTTPHEADER][] = 'Content-Length: '.strlen($this->body);
 		}
 
 		return OAuth::remote($url, $options);
