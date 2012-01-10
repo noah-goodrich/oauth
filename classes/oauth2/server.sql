@@ -19,7 +19,7 @@ CREATE TABLE `oauth2_codes` (
 	CONSTRAINT `fk-oauth2_client-oauth2_code` FOREIGN KEY (client_id) REFERENCES oauth2_clients(id) ON DELETE CASCADE
 ) ENGINE=Innodb DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `oauth2_tokens`
+DROP TABLE IF EXISTS `oauth2_server_tokens`
 
 CREATE TABLE `oauth2_tokens` (
 	`token` varchar(40) NOT NULL PRIMARY KEY,
