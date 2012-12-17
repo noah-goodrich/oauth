@@ -3,7 +3,7 @@
  * @user: noah
  * @date 12/16/12
  */
-abstract class Kohana_Oauth2_Provider_Gmail extends OAuth2_Provider
+abstract class Kohana_OAuth2_Provider_Gmail extends OAuth2_Provider
 {
 	public $name = 'gmail';
 

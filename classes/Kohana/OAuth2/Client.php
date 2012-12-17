@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
-class Kohana_OAuth2_Client {
+class Kohana_OAuth2_Client
+{
 
 	/**
 	 * Create a new consumer object.
